@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Persistent Intelligence Dashboard (Vanilla Export)</title>
+    <!-- Tailwind CSS CDN for elegant utility styling without third-party builds -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans min-h-screen pb-12">
+
+    <!-- Header Banner -->
+    <header class="bg-white border-b border-slate-200 py-4 px-6 md:px-12 sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-slate-950 text-white p-2.5 rounded-xl shadow-sm">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight text-slate-900">Persistent Intelligence Dashboard</h1>
+                    <p class="text-xs text-slate-500">Autonomous BI dynamic dataset generator powered by Gemini</p>
+                </div>
+            </div>
+            
+            <!-- Local API Key Config Box (Graceful standalone setup) -->
+            <div class="flex items-center space-x-2">
+                <input type="password" id="apiKeyInput" placeholder="Enter Gemini API Key..." class="bg-slate-100 placeholder-slate-400 text-xs px-3 py-2 rounded-lg border border-slate-200 w-52 focus:outline-none focus:ring-1 focus:ring-slate-900 focus:bg-white transition">
+                <button id="saveKeyBtn" class="bg-slate-950 hover:bg-black text-white text-xs font-bold px-3 py-2 rounded-lg transition">Save Key</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 md:px-12 mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Left Column: Generator Terminal & Settings -->
+        <section class="lg:col-span-4 space-y-6">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                <h2 class="text-sm font-bold uppercase tracking-wider text-slate-800 mb-4 pb-2 border-b border-slate-100">BI Generator Terminal</h2>
+                
+                <!-- Presets dropdown -->
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold text-slate-505 mb-1.5 text-slate-500">Preset BI Scenarios</label>
+                    <select id="presetSelect" class="w-full bg-slate-50 border border-slate-200 text-xs text-slate-700 rounded-lg p-2.5 focus:outline-none focus:ring-1 focus:ring-slate-900 transition">
+                        <option value="">-- Choose an industry preset --</option>
+                        <option value="student">Student Performance analytics</option>
+                        <option value="sales">Quarterly Sales reports</option>
+                        <option value="employee">HR Employee tracking</option>
+                        <option value="inventory">Warehouse Inventory log</option>
+                        <option value="finance">Corporate Financial balances</option>
+                    </select>
+                </div>
+
+                <!-- Custom instructions prompt -->
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold text-slate-505 mb-1.5 text-slate-500">Prompt Instructions</label>
+                    <textarea id="promptInput" rows="5" placeholder="Describe the dashboard dataset you want to generate. E.g.: 'Generate a patient ledger with age, primary symptoms, attending doctor, and follow-up status.'" class="w-full p-3 font-mono text-xs bg-slate-900 text-slate-100 placeholder-slate-500 rounded-lg border border-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-400 transition leading-relaxed"></textarea>
+                </div>
+
+                <button id="generateBtn" class="w-full bg-slate-900 hover:bg-black text-white font-bold py-3 px-4 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-sm">
+                    <svg id="playIcon" class="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20"><path d="M4.5 3.5v13L16 10z"/></svg> 
+                    <svg id="spinnerIcon" class="hidden animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span id="btnText">Synthesize Dataset JSON</span>
+                </button>
+            </div>
+
+            <!-- Saved Prompts History Sidebar list -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-800">Prompt Logs</h2>
+                    <button id="clearLogsBtn" class="text-xs text-red-500 hover:text-red-700 font-medium">Clear</button>
+                </div>
+                <div id="logsContainer" class="space-y-2 max-h-[300px] overflow-y-auto pr-1 text-xs">
+                    <!-- Dynamic logs injection -->
+                    <p class="text-slate-400 italic text-center py-4">No logged queries yet</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Column: Interactive Dynamic Table -->
+        <section class="lg:col-span-8 space-y-6">
+            
+            <!-- Dynamic Dashboard Output Card -->
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden min-h-[400px] flex flex-col justify-between">
+                
+                <!-- Table Controls Menu -->
+                <div class="p-5 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div>
+                        <h2 class="text-sm font-bold text-slate-800 flex items-center gap-1.5 uppercase tracking-wider">
+                            <span class="h-1.5 w-1.5 rounded-full bg-slate-800"></span>
+                            Visualized Spreadsheet Matrix
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Adaptable columns populated via real-time logic schema</p>
+                    </div>
+
+                    <!-- Export utility button -->
+                    <button id="exportCsvBtn" disabled class="bg-white font-semibold ring-1 ring-slate-200 text-slate-700 hover:bg-slate-50 text-xs py-2 px-3.5 rounded-lg transition flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-xs">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Export CSV Sheets
+                    </button>
+                </div>
+
+                <!-- Error Toast Container -->
+                <div id="errorBanner" class="hidden m-5 bg-red-50 border border-red-200 text-red-800 p-4 rounded-xl text-xs flex items-center gap-2">
+                    <svg class="w-5 h-5 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                    <div>
+                        <span class="font-bold">Execution Error:</span> <span id="errorText">Request details failed.</span>
+                    </div>
+                </div>
+
+                <!-- Live Container table scroll area -->
+                <div class="flex-1 overflow-x-auto min-h-[300px]">
+                    <table id="dashboardTable" class="w-full text-left text-xs text-slate-700 border-collapse">
+                        <!-- Instantiated dynamically -->
+                        <tbody id="tablePlaceholder">
+                            <tr>
+                                <td class="py-20 text-center text-slate-400 font-mono">
+                                    <svg class="w-12 h-12 stroke-1 text-slate-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path>
+                                    </svg>
+                                    <p class="font-bold text-slate-600 uppercase text-[11px] tracking-wider">Awaiting BI generation trigger</p>
+                                    <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto leading-relaxed">Enter prompts or load presets. Output fields will instantiate columns dynamically.</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Footer statistics info panel -->
+                <div class="bg-slate-50 border-t border-slate-100 p-4 font-mono text-[10px] text-slate-400 flex flex-col md:flex-row md:items-center md:justify-between gap-2.5">
+                    <div>
+                        Showing <span id="colCountText" class="text-slate-700 font-bold">0</span> columns by <span id="rowCountText" class="text-slate-700 font-bold">0</span> row indices
+                    </div>
+                    <div>
+                        Snapshot Persistence: Local Browser Storage Cache
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+    </main>
+
+    <!-- Detailed Obtain key and setup guides -->
+    <section class="max-w-7xl mx-auto px-4 md:px-12 mt-12">
+        <div class="bg-slate-900 text-slate-100 rounded-2xl p-6 md:p-8 space-y-6 shadow-sm">
+            <h2 class="text-lg font-bold flex items-center gap-2">
+                <svg class="w-5 h-5 text-yellow-500 fill-current" viewBox="0 0 20 20"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828zM4 16h1v1H4v-1zm1-5H4v1h1v-1zm0-3H4v1h1V8zm12 11a1 1 0 01-1 1H3a1 1 0 01-1-1H1v1h18v-1h-2z"/></svg>
+                Standalone Obtaining &amp; Setting Up Your Gemini API Key
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-slate-300">
+                <div class="space-y-3">
+                    <p class="font-bold text-white text-sm">Step-by-Step API Key Obtainment</p>
+                    <ol class="list-decimal list-inside space-y-2 leading-relaxed">
+                        <li>Navigate to Google AI Studio: <a href="https://aistudio.google.com" target="_blank" class="text-blue-400 hover:text-blue-300 font-semibold underline inline-flex items-center gap-0.5">aistudio.google.com <svg class="w-3 h-3 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg></a></li>
+                        <li>Authenticate using your standard Google user account credentials.</li>
+                        <li>Click on the prominent <span class="bg-slate-800 text-white font-bold py-0.5 px-1.5 rounded border border-slate-700">Get API Key</span> button on the sidebar.</li>
+                        <li>Choose to create a key either in a new cloud project or synchronize with an existing administrative workspace.</li>
+                        <li>Copy the generated alphanumeric string (starting with <code class="text-emerald-400 font-semibold font-mono">AIzaSy...</code>).</li>
+                    </ol>
+                </div>
+                
+                <div class="space-y-3">
+                    <p class="font-bold text-white text-sm">Offline Local Execution instructions</p>
+                    <p class="leading-relaxed">
+                        To run this vanilla copy directly on your personal machine or hosted file share:
+                    </p>
+                    <ul class="list-disc list-inside space-y-2 leading-relaxed">
+                        <li>Save these files locally as <code class="text-slate-200">index.html</code>, <code class="text-slate-200">style.css</code>, and <code class="text-slate-200">script.js</code> in a single directory.</li>
+                        <li>Open <code class="text-slate-200">index.html</code> in any web browser.</li>
+                        <li>Paste your Gemini API key in the top right configuration text box.</li>
+                        <li>Run prompts to generate on-the-fly schemas dynamically!</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Page Footer -->
+    <footer class="max-w-7xl mx-auto px-4 md:px-12 mt-12 text-center text-xs text-slate-400">
+        <p>Persistent Intelligence Dashboard &bull; Pure Vanilla HTML5/CSS3/ES6 Engine Export</p>
+    </footer>
+
+    <!-- Connect Javascript file logic modules -->
+    <script src="script.js"></script>
+</body>
+</html>

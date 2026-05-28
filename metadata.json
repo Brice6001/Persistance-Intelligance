@@ -1,0 +1,6 @@
+{
+  "name": "Data Classification & Risk Assessment Dashboard",
+  "description": "Automated enterprise operational text classification, risk assessment, and recommended mitigation actions dashboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
